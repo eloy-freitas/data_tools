@@ -1,0 +1,9 @@
+{ 
+    "AIRFLOW_WORKSPACE":"airflow"
+    , "SUBDIRS": ["dags","logs", "data", "config", "plugins", "airflow-db", "datawarehouse-db"]
+    , "DOCKER_IMAGE_OWNER":"eloyfreitas"
+    , "DOCKER_IMAGE_NAME":"airflow-tcc"
+    , "DOCKER_IMAGE_VERSION":"1.0.0"
+    , "DOCKER_FILE":"Docker_image_airflow"
+    , "DOCKER_COMPOSE_FILE":"./airflow_compose.yml"
+}

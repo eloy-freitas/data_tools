@@ -82,9 +82,8 @@ class SQLAlchemyProducer(_BaseWorker):
             while result := cursor.fetchmany():
                 try:
                     """
-                    Verifica se a flag para interromper a execução do processo está não ativa.
-                    Então escreve na memória compartilhada,
-                    Caso contrário, notifica os outros threads para parar de executar.
+                    Verifica se a flag para interromper a execução do processo está ativa.
+                    Caso contrário, escreve na memória compartilhada.
                     """
                     if self._stop.isSet():
                         raise RuntimeError("Hover um erro. Parando todos os threads.")

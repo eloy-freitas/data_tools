@@ -118,7 +118,7 @@ class Monitor(_BaseMonitor):
     def done(self):
         """
         Quando um thread produtor termina sua execução, ele entra na região crítica e decrementa o contador
-        `_producers_online` para que threads consumidores saibam se devem esperar com mais dados.
+        `_producers_online` para que threads consumidores saibam se devem esperar por mais dados.
         """
         self._mutex.acquire()
         self._producers_online -= 1

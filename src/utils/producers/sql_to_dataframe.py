@@ -30,7 +30,7 @@ class SQLToDataframe(BaseProducer):
 
     def extract(self):
         """
-        Executa a consulta no bando de dados e retorna um `pandas.DataFrame`.
+        Executa a consulta no banco de dados e retorna um `pandas.DataFrame`.
 
         Returns:
             `pandas.Dataframe`: Resultado da consulta.

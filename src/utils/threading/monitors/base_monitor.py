@@ -51,7 +51,7 @@ class BaseMonitor(_ABC):
 
     def subscribe(self, worker):
         """
-        Método para inscrever um thread no monitor para que o mesmo possa receber notificado
+        Método para inscrever um thread no monitor para que o mesmo possa ser notificado
         quando ocorrer algum evento.
         """
         if worker._is_producer:

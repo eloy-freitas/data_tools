@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
 
 class DataframeToSQL:
     """
-    Essa classe te o objetivo de fazer a carga dos dados de um objeto `pandas.DataFrame` no banco de dados.
+    Essa classe tem o objetivo de fazer a carga dos dados de um objeto `pandas.DataFrame` no banco de dados.
     """
     def __init__(
         self, 
@@ -48,9 +48,6 @@ class DataframeToSQL:
     def load(self):
         """
         Método responsável por fazer a carga dos dados.
-
-        Raises:
-            _SQLAlchemyError: _description_
         """
         try:
             """

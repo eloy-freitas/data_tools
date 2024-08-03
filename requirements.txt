@@ -1,0 +1,8 @@
+pandas
+sqlalchemy
+psycopg2.binary
+xlrd
+python-magic==0.4.27
+apache-airflow-providers-postgres
+libmagic
+openpyxl

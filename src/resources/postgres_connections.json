@@ -1,0 +1,11 @@
+{
+    "dbdw": {
+        "host":"localhost",
+        "database": "dbdw",
+        "user":"postgres",
+        "password":"postgres",
+        "schema": "stg",
+        "port": 10001
+    }
+    
+}

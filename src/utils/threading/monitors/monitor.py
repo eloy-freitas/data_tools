@@ -13,7 +13,6 @@ class Monitor(_BaseMonitor):
         Args:
             buffer_size (int): Tamanho do buffer.
             timeout (int, optional): Quantidade de tempo que um thread espera até o mutex ser liberado.
-            Defaults to 5.
         """
         super().__init__(buffer_size)
         self._mutex: _Semaphore = _Semaphore(1)
@@ -29,13 +28,13 @@ class Monitor(_BaseMonitor):
             data (object): Objeto genérico para ser escrito na memória.
         """
         """
-        Thread entra na região crítica adquirindo a trava.
+        O thread tenta entrar na região crítica adquirindo a trava.
+        Se não conseguir ele entra em espera até a trava ser liberada.
         """
         self._mutex.acquire()
         """
-        Verifica se a memória está cheia, 
-        Se estiver, a thread entra em estado de espera até ser notificado por um thread que leu da memória,
-        ou até o tempo de espera acabar.
+        Verifica se a memória está cheia.
+        Se estiver, a thread entra em espera até ser notificado por um thread que consumiu da memória, ou até o tempo de espera acabar.
         """
         if len(self._buffer) == self._buffer_size:
             self._empty.wait(self._timeout)
@@ -52,15 +51,16 @@ class Monitor(_BaseMonitor):
         Método para leitura da memória compartilhada.
 
         Returns:
-            object: Retorna o objetivo que estava escrito na memória.
+            object: Retorna um objetivo que estava escrito na memória.
         """
         data = None
         """
-        Thread entra na região crítica adquirindo a trava.
+        O thread tenta entrar na região crítica adquirindo a trava.
+        Se não conseguir ele entra em espera até a trava ser liberada.
         """
         self._mutex.acquire()
         """
-        Verifica se a memória está vazia, 
+        Verifica se a memória está vazia.
         Se estiver, a thread entra em estado de espera até ser notificado por um thread que escreveu na memória,
         ou até o tempo de espera acabar.
         """
@@ -71,13 +71,13 @@ class Monitor(_BaseMonitor):
         except:
             """
             Se o thread não conseguir extrair dados da memória ele verifica se existe algum thread produtor
-            ativo, se não tiver ele acorda todos os threads que estavam em espera.
+            ativo, se não tiver ele acorda todos os threads consumidores que estavam em espera.
             """
             if self._producers_online <= 0:
                 self.stop_all_workers()
         finally:
             """
-            Após ler, outro thread que estava em espera para escrever na memória compartilhada é notificado.
+            Após consumir da memória, outro thread que estava em espera para escrever na memória compartilhada é notificado.
             Em seguida a trava é liberada.
             """
             try:

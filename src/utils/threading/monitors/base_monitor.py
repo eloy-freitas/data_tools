@@ -28,7 +28,7 @@ class BaseMonitor(_ABC):
     @_abstractclassmethod
     def read(self) -> object:...
     """
-    Assinatura do método para leitura na memória compartilhada.
+    Assinatura do método para consumir a memória compartilhada e retornar um objeto.
     """
 
     @_abstractclassmethod

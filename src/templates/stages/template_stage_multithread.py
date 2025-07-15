@@ -1,8 +1,8 @@
 from sqlalchemy.engine import Engine as _Engine
 from src.utils.table.table_manager import TableManager
-from src.utils.threading.monitors.monitor import Monitor
-from src.utils.threading.workers.producers.sqlalchemy_producer import SQLAlchemyProducer
-from src.utils.threading.workers.consumers.sqlalchemy_consumer import SQLAlchemyConsumer
+from src.monitors.monitor import Monitor
+from src.workers.sqlalchemy_producer import SQLAlchemyProducer
+from src.workers.sqlalchemy_consumer import SQLAlchemyConsumer
 
 
 class StageMultiThread:

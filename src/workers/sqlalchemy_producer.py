@@ -1,10 +1,10 @@
 from typing import Any
 from sqlalchemy.engine import Engine as _Engine
 from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
-from ..base_worker import BaseWorker as _BaseWorker
+from .base_worker import BaseWorker as _BaseWorker
 from collections.abc import Callable, Iterable, Mapping
-from ...monitors.base_monitor import BaseMonitor as _BaseMonitor
-from ....producers.sqlalchemy_batch_producer import SQLAlchemyBatchProducer as _SQLAlchemyBatchProducer
+from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
+
 
 
 class SQLAlchemyProducer(_BaseWorker):
@@ -85,7 +85,7 @@ class SQLAlchemyProducer(_BaseWorker):
                     Verifica se a flag para interromper a execução do processo está ativa.
                     Caso contrário, escreve na memória compartilhada.
                     """
-                    if self._stop.isSet():
+                    if self._stop.is_set():
                         raise RuntimeError("Hover um erro. Parando todos os threads.")
                     else:
                         self._monitor.write(result)

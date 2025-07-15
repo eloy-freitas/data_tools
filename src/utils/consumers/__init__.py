@@ -1,1 +1,0 @@
-from .sqlalchemy_batch_consumer import SQLAlchemyBatchConsumer

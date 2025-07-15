@@ -1,16 +1,16 @@
 from typing import Any
 from sqlalchemy.engine import Engine as _Engine
-from ..base_worker import BaseWorker as _BaseWorker
+from .base_worker import BaseWorker as _BaseWorker
 from collections.abc import Callable, Iterable, Mapping
-from ...monitors.base_monitor import BaseMonitor as _BaseMonitor 
-from ....consumers.sqlalchemy_batch_consumer import SQLAlchemyBatchConsumer as _SQLAlchemyBatchConsumer
-
+from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
+from src.utils.table.table_manager import TableManager as _TableManager
 
 class SQLAlchemyConsumer(_BaseWorker):
     def __init__(
         self,
         monitor: _BaseMonitor,
         engine: _Engine,
+        table_manager: _TableManager,
         columns: list[str],
         table_name_target: str,
         group=None,
@@ -43,14 +43,9 @@ class SQLAlchemyConsumer(_BaseWorker):
         )
         
         self._engine = engine
-        """
-        Classe especializada para escrever no banco de dados.
-        """
-        self._consumer = _SQLAlchemyBatchConsumer(
-            columns=columns,
-            table_name_target=table_name_target
-        )
-        
+        self._table_manager = table_manager
+        self._insert_query_template = self._table_manager.build_insert_query(table_name=table_name_target, columns=columns)
+
     def run(self):
         """
         Método executado pela thread responsável por escrever os dados extraídos do monitor no banco de dados.
@@ -63,9 +58,10 @@ class SQLAlchemyConsumer(_BaseWorker):
                 data = self._monitor.read()
                 if data:
                     try:
-                        self._consumer.load(
+                        self._table_manager.insert(
+                            conn=conn,
                             data=data,
-                            conn=conn
+                            insert_query_template=self._insert_query_template
                         )
                     except Exception as e:
                         self.stop_all_workers()

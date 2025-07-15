@@ -34,7 +34,7 @@ else
 
     echo 'compilando airflow...';
 
-    #docker image build -t $DOCKER_IMAGE_OWNER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION -f $DOCKER_FILE . --no-cache;
+    docker image build -t $DOCKER_IMAGE_OWNER/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION -f $DOCKER_FILE .;
 
     echo 'parando serviços existentes...';
 

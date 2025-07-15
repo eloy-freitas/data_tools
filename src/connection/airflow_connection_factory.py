@@ -1,6 +1,6 @@
 from airflow.hooks.base import BaseHook
 
-from src.utils.connection.postgres_connection_factory import PostgresConnectionFactory
+from src.connection.postgres_connection_factory import PostgresConnectionFactory
 
 class PostgresHook(PostgresConnectionFactory):
         

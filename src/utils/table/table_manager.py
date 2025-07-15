@@ -1,6 +1,6 @@
 from sqlalchemy.engine import Engine as _Engine
 from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
-import pandas as pd
+from sqlalchemy.engine import Connection as _Connection
 
 
 class TableManager:
@@ -66,3 +66,35 @@ class TableManager:
             except _SQLAlchemyError as e:
                 raise _SQLAlchemyError(f"Falha ao executar contagem: {e}")
                     
+    def insert(self, data: object, conn: _Connection, insert_query_template: str):
+        """
+        Realiza a inserção no banco de dados.
+
+        Args:
+            data (object): Objeto de dados.
+            conn (_Connection): Objeto de conexão do banco de dados.
+            
+        """
+        with conn.begin() as transaction:
+            try:
+                conn.execute(insert_query_template, data)
+                transaction.commit()
+            except _SQLAlchemyError as e:
+                transaction.rollback()
+                raise _SQLAlchemyError(
+                    f"Falha ao inserir dados \n"
+                    f"MENSAGEM DE ERRO: {e}"
+                )
+    
+    def build_insert_query(self, table_name: str,columns: list[str]):
+        """
+        Esse método tem o objetivo de construir a instrução de insert com base nos parâmetros da classe.
+        """
+        columns_names_str = ",".join(columns)
+        columns_name_parametes = ",".join([f"%s" for _ in columns])
+
+        insert_query_template = f"""
+            INSERT INTO {table_name}({columns_names_str}) VALUES ({columns_name_parametes})
+        """
+
+        return insert_query_template

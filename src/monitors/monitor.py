@@ -3,10 +3,9 @@ from threading import (
     Condition as _Condition,
     Event as _Event
 )
-from .base_monitor import BaseMonitor as _BaseMonitor
 
 
-class Monitor(_BaseMonitor):
+class Monitor:
     def __init__(self, buffer_size: int, timeout: int = 5):
         """
         Implementação de um monitor utilizando a biblioteca `threading`
@@ -14,7 +13,10 @@ class Monitor(_BaseMonitor):
             buffer_size (int): Tamanho do buffer.
             timeout (int, optional): Quantidade de tempo que um thread espera até o mutex ser liberado.
         """
-        super().__init__(buffer_size)
+        self._buffer: list[tuple] = []
+        self._buffer_size: int = buffer_size
+        self._workers: list = []
+        self._producers_online: int = 0
         self._mutex: _Semaphore = _Semaphore(1)
         self._full: _Condition = _Condition(self._mutex)
         self._empty: _Condition = _Condition(self._mutex)
@@ -123,3 +125,19 @@ class Monitor(_BaseMonitor):
         self._mutex.acquire()
         self._producers_online -= 1
         self._mutex.release()
+
+    def subscribe(self, worker):
+        """
+        Método para inscrever um thread no monitor para que o mesmo possa ser notificado
+        quando ocorrer algum evento.
+        """
+        if worker._is_producer:
+            self._producers_online += 1
+        self._workers.append(worker)
+            
+    def start(self):
+        """
+        Método para iniciar a execução de todos os threads inscritos.
+        """
+        for worker in self._workers:
+            worker.start()

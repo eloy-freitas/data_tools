@@ -4,21 +4,13 @@ from threading import (
     Event as _Event 
 )
 from abc import abstractmethod as _abstractmethod
-from collections.abc import Callable, Iterable, Mapping
-from src.utils.threading.monitors.base_monitor import BaseMonitor as _BaseMonitor
+from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
 
 class BaseWorker(_Thread):
     def __init__(
         self
         , monitor: _BaseMonitor 
         , is_producer: bool = False
-        , group = None
-        , target: Callable[..., object] = None
-        , name: str  = None
-        , args: Iterable[Any] = None
-        , kwargs: Mapping[str, Any] = None
-        , *
-        , daemon: bool = None
     ) -> None:
         """
         Especialização da classe Thread para trabalhar de forma sincronizada com memória compartilhada.
@@ -27,7 +19,14 @@ class BaseWorker(_Thread):
             monitor (_BaseMonitor): Referência do objeto monitor no qual foi inscrito.
             is_producer (bool, optional): Flag para identificar se o thread vai produzir dados. Defaults to False.
         """
-        super().__init__(group, target, name, args, kwargs, daemon=daemon)
+        super().__init__(
+            group=None, 
+            target=None, 
+            name=None, 
+            args=None,
+            kwargs=None, 
+            daemon=False
+        )
         self._stop = _Event()
         self._monitor = monitor
         self._is_producer: bool = is_producer

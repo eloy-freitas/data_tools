@@ -1,9 +1,8 @@
-from typing import Any
 from sqlalchemy.engine import Engine as _Engine
 from .base_worker import BaseWorker as _BaseWorker
-from collections.abc import Callable, Iterable, Mapping
 from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
 from src.utils.table.table_manager import TableManager as _TableManager
+
 
 class SQLAlchemyConsumer(_BaseWorker):
     def __init__(
@@ -13,12 +12,6 @@ class SQLAlchemyConsumer(_BaseWorker):
         table_manager: _TableManager,
         columns: list[str],
         table_name_target: str,
-        group=None,
-        target: Callable[..., object] = None,
-        name: str = None,
-        args: Iterable[Any] = None,
-        kwargs: Mapping[str, Any] = None,
-        daemon: bool = None
     ) -> None:
         """
         Especialização da classe Thread responsável por consumir dados de um `Monitor`
@@ -30,16 +23,9 @@ class SQLAlchemyConsumer(_BaseWorker):
             columns (list[str]): Colunas da tabela de destino dos dados.
             table_name_target (str): Nome da tabela de destino dos dados.
         """
-        is_producer: bool = False
         super().__init__(
-            monitor,
-            is_producer,
-            group,
-            target,
-            name,
-            args,
-            kwargs,
-            daemon=daemon
+            monitor=monitor,
+            is_producer=False,
         )
         
         self._engine = engine
@@ -66,5 +52,4 @@ class SQLAlchemyConsumer(_BaseWorker):
                     except Exception as e:
                         self.stop_all_workers()
                         raise Exception(e)
-
-            
+        

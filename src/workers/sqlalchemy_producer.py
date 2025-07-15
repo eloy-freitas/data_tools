@@ -1,10 +1,8 @@
-from typing import Any
 from sqlalchemy.engine import Engine as _Engine
 from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
 from .base_worker import BaseWorker as _BaseWorker
 from collections.abc import Callable, Iterable, Mapping
 from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
-
 
 
 class SQLAlchemyProducer(_BaseWorker):
@@ -14,14 +12,7 @@ class SQLAlchemyProducer(_BaseWorker):
         engine: _Engine, 
         query: str, 
         max_rows_buffer: int, 
-        yield_per: int, 
-        is_producer: bool = True, 
-        group=None, 
-        target: Callable[..., object] = None, 
-        name: str = None, 
-        args: Iterable[Any] = None, 
-        kwargs: Mapping[str, Any] = None, 
-        daemon: bool = None
+        yield_per: int,
     ) -> None:
         """
         Especialização da classe Thread responsável por fazer leitura no banco de dados 
@@ -36,14 +27,8 @@ class SQLAlchemyProducer(_BaseWorker):
             is_producer (bool, optional): Flag para identifcar o thread como produtor. Defaults to True.
         """
         super().__init__(
-            monitor,
-            is_producer,
-            group,
-            target,
-            name,
-            args,
-            kwargs,
-            daemon=daemon
+            monitor=monitor,
+            is_producer=True,
         )
         self._engine=engine
         self._query=query

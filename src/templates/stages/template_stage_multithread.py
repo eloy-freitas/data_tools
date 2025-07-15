@@ -86,9 +86,9 @@ class StageMultiThread:
         """
         print('iniciando os serviços\n')
         self.init_services()
-        print('executando os threads\n')
-        self._monitor.start()
         print('truncando tabela de destino\n')
         self._table_manager.truncate_table(self._conn_output, self._table_name_taget)
+        print('executando os threads\n')
+        self._monitor.start()
         print('esperando threads finalizar a excução\n')
         self._monitor._end_process.wait()

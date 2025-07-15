@@ -1,14 +1,13 @@
 from sqlalchemy.engine import Engine as _Engine
 from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
 from .base_worker import BaseWorker as _BaseWorker
-from collections.abc import Callable, Iterable, Mapping
-from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
+from src.monitors.monitor import Monitor as _Monitor
 
 
 class SQLAlchemyProducer(_BaseWorker):
     def __init__(
         self,
-        monitor: _BaseMonitor, 
+        monitor: _Monitor, 
         engine: _Engine, 
         query: str, 
         max_rows_buffer: int, 
@@ -19,7 +18,7 @@ class SQLAlchemyProducer(_BaseWorker):
         e escrever no `Monitor`.
 
         Args:
-            monitor (_BaseMonitor): Referência do objeto monitor no qual foi inscrito.
+            monitor (_Monitor): Referência do objeto monitor no qual foi inscrito.
             engine (_Engine): Engine de conexão com banco de dados.
             query (str): Query select para extração dos dados.
             max_rows_buffer (int): Quantidade de linhas do buffer do DBAPI.

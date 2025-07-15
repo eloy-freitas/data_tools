@@ -4,19 +4,19 @@ from threading import (
     Event as _Event 
 )
 from abc import abstractmethod as _abstractmethod
-from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
+from src.monitors.monitor import Monitor as _Monitor
 
 class BaseWorker(_Thread):
     def __init__(
         self
-        , monitor: _BaseMonitor 
+        , monitor: _Monitor 
         , is_producer: bool = False
     ) -> None:
         """
         Especialização da classe Thread para trabalhar de forma sincronizada com memória compartilhada.
 
         Args:
-            monitor (_BaseMonitor): Referência do objeto monitor no qual foi inscrito.
+            monitor (_Monitor): Referência do objeto monitor no qual foi inscrito.
             is_producer (bool, optional): Flag para identificar se o thread vai produzir dados. Defaults to False.
         """
         super().__init__(

@@ -1,13 +1,13 @@
 from sqlalchemy.engine import Engine as _Engine
 from .base_worker import BaseWorker as _BaseWorker
-from src.monitors.base_monitor import BaseMonitor as _BaseMonitor
+from src.monitors.monitor import Monitor as _Monitor
 from src.utils.table.table_manager import TableManager as _TableManager
 
 
 class SQLAlchemyConsumer(_BaseWorker):
     def __init__(
         self,
-        monitor: _BaseMonitor,
+        monitor: _Monitor,
         engine: _Engine,
         table_manager: _TableManager,
         columns: list[str],
@@ -18,7 +18,7 @@ class SQLAlchemyConsumer(_BaseWorker):
         e escrever no banco de dados.
 
         Args:
-            monitor (_BaseMonitor): Referência do objeto monitor no qual foi inscrito.
+            monitor (_Monitor): Referência do objeto monitor no qual foi inscrito.
             engine (_Engine): Engine de conexão com banco de dados.
             columns (list[str]): Colunas da tabela de destino dos dados.
             table_name_target (str): Nome da tabela de destino dos dados.

@@ -40,7 +40,7 @@ class SQLAlchemyConsumer(_BaseWorker):
             """
             Enquando a flag `_stop` for False o thread consome dados do monitor e insere no banco de dados.
             """
-            while not self._stop.isSet():
+            while not self._stop.is_set():
                 data = self._monitor.read()
                 if data:
                     try:

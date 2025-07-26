@@ -66,7 +66,6 @@ class StageMultiThread:
                 query=self._query,
                 max_rows_buffer=self._max_rows_buffer,
                 yield_per=self._yield_per,
-                is_producer=True
             )
         )
 
@@ -76,7 +75,8 @@ class StageMultiThread:
                 monitor=self._monitor,
                 engine=self._conn_output,
                 columns=columns,
-                table_name_target=self._table_name_taget
+                table_name_target=self._table_name_taget,
+                table_manager=self._table_manager
             )
         )
             

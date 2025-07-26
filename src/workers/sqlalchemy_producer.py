@@ -2,6 +2,7 @@ from sqlalchemy.engine import Engine as _Engine
 from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
 from .base_worker import BaseWorker as _BaseWorker
 from src.monitors.monitor import Monitor as _Monitor
+from sqlalchemy import text
 
 
 class SQLAlchemyProducer(_BaseWorker):
@@ -52,7 +53,7 @@ class SQLAlchemyProducer(_BaseWorker):
                 """
                 Executa a consulta no banco de dados e define o tamanho de cada lote de dados que será trazido pelo fetch do cursor.
                 """
-                cursor = conn.execute(self._query).yield_per(self._yield_per) 
+                cursor = conn.execute(text(self._query)).yield_per(self._yield_per) 
             except _SQLAlchemyError as e:
                 self.stop_all_workers()
                 conn.close()

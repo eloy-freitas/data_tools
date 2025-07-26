@@ -29,22 +29,12 @@ class Monitor:
         Args:
             data (object): Objeto genérico para ser escrito na memória.
         """
-        """
-        O thread tenta entrar na região crítica adquirindo a trava.
-        Se não conseguir ele entra em espera até a trava ser liberada.
-        """
         self._mutex.acquire()
-        """
-        Verifica se a memória está cheia.
-        Se estiver, a thread entra em espera até ser notificado por um thread que consumiu da memória, ou até o tempo de espera acabar.
-        """
+        # verifica se o buffer esta cheio
+        # espera ate liberar espaço da memória
         if len(self._buffer) == self._buffer_size:
-            self._empty.wait(self._timeout)
+            self._empty.wait()
         self._buffer.append(data)
-        """
-        Após escrever, outro thread que estava em espera para ler a memória compartilhada é notificado.
-        Em seguida a trava é liberada.
-        """
         self._full.notify()
         self._mutex.release()
 
@@ -56,38 +46,25 @@ class Monitor:
             object: Retorna um objetivo que estava escrito na memória.
         """
         data = None
-        """
-        O thread tenta entrar na região crítica adquirindo a trava.
-        Se não conseguir ele entra em espera até a trava ser liberada.
-        """
+        # sessão crítica
         self._mutex.acquire()
-        """
-        Verifica se a memória está vazia.
-        Se estiver, a thread entra em estado de espera até ser notificado por um thread que escreveu na memória,
-        ou até o tempo de espera acabar.
-        """
-        if len(self._buffer) == 0:
-            self._full.wait(self._timeout)
+        # verifica se o buffer está vazio e se existe algum produtor online
+        if len(self._buffer) == 0 and self._producers_online > 0:
+            self._full.wait()
         try:
             data = self._buffer.pop()
         except:
-            """
-            Se o thread não conseguir extrair dados da memória ele verifica se existe algum thread produtor
-            ativo, se não tiver ele acorda todos os threads consumidores que estavam em espera.
-            """
+            # se o buffer estiver vazio e nenhum produtor estiver online
+            # todos os workes devem parar
             if self._producers_online <= 0:
                 self.stop_all_workers()
         finally:
-            """
-            Após consumir da memória, outro thread que estava em espera para escrever na memória compartilhada é notificado.
-            Em seguida a trava é liberada.
-            """
             try:
                 self._empty.notify()
                 self._mutex.release()
             except:
                 pass
-        
+            
         return data
     
     def notify_all(self):
@@ -102,42 +79,28 @@ class Monitor:
             pass
 
     def stop_all_workers(self):
-        """
-        Esse método executa as rotinas necessárias para finalizar o processo com segurança.        
-        """
-        """
-        Define o evento _end_process para True, para acordar o thread principal.
-        """
-        self._end_process.set()
-        """
-        Atualiza o atributo `_stop` de todos os threads para True, para que eles não entrem mais
-        na região crítica e finalizar o programa.
-        """
+        # Esse método executa as rotinas necessárias para finalizar o processo com segurança.        
+        
         for worker in self._workers:
             worker.stop()
         self.notify_all()
 
+        # libera processo que espera pelo evento
+        self._end_process.set()
+
     def done(self):
-        """
-        Quando um thread produtor termina sua execução, ele entra na região crítica e decrementa o contador
-        `_producers_online` para que threads consumidores saibam se devem esperar por mais dados.
-        """
+        # atualização contador de workers online
         self._mutex.acquire()
         self._producers_online -= 1
         self._mutex.release()
 
     def subscribe(self, worker):
-        """
-        Método para inscrever um thread no monitor para que o mesmo possa ser notificado
-        quando ocorrer algum evento.
-        """
+        # inscrição dos workers
         if worker._is_producer:
             self._producers_online += 1
         self._workers.append(worker)
             
     def start(self):
-        """
-        Método para iniciar a execução de todos os threads inscritos.
-        """
+        # inicia a execução de todos os threads inscritos.
         for worker in self._workers:
             worker.start()

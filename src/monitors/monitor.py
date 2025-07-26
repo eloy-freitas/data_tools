@@ -7,12 +7,6 @@ from threading import (
 
 class Monitor:
     def __init__(self, buffer_size: int, timeout: int = 5):
-        """
-        Implementação de um monitor utilizando a biblioteca `threading`
-        Args:
-            buffer_size (int): Tamanho do buffer.
-            timeout (int, optional): Quantidade de tempo que um thread espera até o mutex ser liberado.
-        """
         self._buffer: list[tuple] = []
         self._buffer_size: int = buffer_size
         self._workers: list = []
@@ -24,11 +18,6 @@ class Monitor:
         self._timeout: int = timeout
 
     def write(self, data: object):
-        """
-        Método para escrita na memória compartilhada.
-        Args:
-            data (object): Objeto genérico para ser escrito na memória.
-        """
         self._mutex.acquire()
         # verifica se o buffer esta cheio
         # espera ate liberar espaço da memória
@@ -39,12 +28,6 @@ class Monitor:
         self._mutex.release()
 
     def read(self):
-        """
-        Método para leitura da memória compartilhada.
-
-        Returns:
-            object: Retorna um objetivo que estava escrito na memória.
-        """
         data = None
         # sessão crítica
         self._mutex.acquire()
@@ -68,9 +51,6 @@ class Monitor:
         return data
     
     def notify_all(self):
-        """
-        Método responsável por liberar a trava e notificar todos os threads que estão em espera.
-        """
         try:
             self._mutex.release()
             self._full.notify_all()
@@ -78,9 +58,7 @@ class Monitor:
         except:
             pass
 
-    def stop_all_workers(self):
-        # Esse método executa as rotinas necessárias para finalizar o processo com segurança.        
-        
+    def stop_all_workers(self):        
         for worker in self._workers:
             worker.stop()
         self.notify_all()

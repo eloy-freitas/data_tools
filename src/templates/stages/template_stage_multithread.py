@@ -19,22 +19,6 @@ class StageMultiThread:
             max_rows_buffer:int = 100000,
             yield_per: int = 20000
         ) -> None:
-            """
-            Classe template para fazer extração de uma tabela muito grande no banco de dados e armazenar em uma tabela stage
-            utilzando multiplos threads.
-
-
-            Args:
-                query (str): Query que vai ser executada no banco de dados.
-                table_name_taget (str): Nome da tabela que vai ser carregada.
-                conn_input (_Engine): Engine da conexão de origem de dados.
-                conn_output (_Engine): Engine da conexão de destino de dados.
-                consumers (int, optional): Quantidade de threads que vão escrever no banco de dados. Por padrão 2.
-                monitor_timeout (int, optional): Quantidade de tempo que um thread vai ficar em espera no monitor. Por padrão 5 segundos.
-                monitor_buffer_size (int, optional): Tamanho do buffer do monitor. Por padrão 10 slots.
-                max_rows_buffer (int, optional): Tamanho do buffer do DBAPI. Por padrão 100000.
-                yield_per (int, optional): Quantidades de dados que vão ser retornadas em cada fetch. Por padrão 20000.
-            """
             self._query = query
             self._table_name_taget = table_name_taget
             self._conn_input = conn_input
@@ -46,10 +30,6 @@ class StageMultiThread:
             self._yield_per = yield_per
             
     def init_services(self):
-        """
-        Esse método prepara os threads que vão ser executados.
-        """
-
         self._table_manager = TableManager()
 
         columns = self._table_manager.get_table_columns(
@@ -81,9 +61,6 @@ class StageMultiThread:
         )
             
     def start(self):
-        """
-        Esse método inicia os serviços da classe e inicia a execução dos threads.
-        """
         print('iniciando os serviços\n')
         self.init_services()
         print('truncando tabela de destino\n')

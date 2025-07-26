@@ -13,16 +13,6 @@ class SQLAlchemyConsumer(_BaseWorker):
         columns: list[str],
         table_name_target: str,
     ) -> None:
-        """
-        Especialização da classe Thread responsável por consumir dados de um `Monitor`
-        e escrever no banco de dados.
-
-        Args:
-            monitor (_Monitor): Referência do objeto monitor no qual foi inscrito.
-            engine (_Engine): Engine de conexão com banco de dados.
-            columns (list[str]): Colunas da tabela de destino dos dados.
-            table_name_target (str): Nome da tabela de destino dos dados.
-        """
         super().__init__(
             monitor=monitor,
             is_producer=False,
@@ -33,13 +23,6 @@ class SQLAlchemyConsumer(_BaseWorker):
         self._insert_query_template = self._table_manager.build_insert_query(table_name=table_name_target, columns=columns)
 
     def run(self):
-        """
-        Método executado pela thread responsável por escrever os dados extraídos do monitor no banco de dados.
-        """   
-        """
-        Enquando a flag `_stop` for False o thread consome dados do monitor e insere no banco de dados.
-        """
-
         conn = self._engine.raw_connection()
         
         cursor = conn.cursor()

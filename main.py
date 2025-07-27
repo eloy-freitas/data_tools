@@ -3,9 +3,9 @@ from src.connection.postgres_connection_factory import PostgresConnectionFactory
 
 
 def main():
-    query = "select * from tabela"
+    query = "select * from tabela_2"
 
-    table_name_target = 'tabela_grande'
+    table_name_target = 'tabela_2_target'
 
     postgres_conn_factory = PostgresConnectionFactory()
 
@@ -23,12 +23,11 @@ def main():
         table_name_taget=table_name_target,
         conn_input=db_conn,
         conn_output=db_conn,
-        yield_per=50000,
-        consumers=2
+        yield_per=40000,
+        consumers=5
     )
 
     stage.start()
-
 
 if __name__ == '__main__':
     main()

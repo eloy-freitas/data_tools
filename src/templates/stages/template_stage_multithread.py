@@ -3,7 +3,7 @@ from src.utils.table.table_manager import TableManager
 from src.monitors.monitor import Monitor
 from src.workers.sqlalchemy_producer import SQLAlchemyProducer
 from src.workers.sqlalchemy_consumer import SQLAlchemyConsumer
-
+import time
 
 class StageMultiThread:
 
@@ -61,11 +61,14 @@ class StageMultiThread:
         )
             
     def start(self):
+        start = time.time()
         print('iniciando os serviços\n')
         self.init_services()
         print('truncando tabela de destino\n')
         self._table_manager.truncate_table(self._conn_output, self._table_name_taget)
         print('executando os threads\n')
         self._monitor.start()
-        print('esperando threads finalizar a excução\n')
+        print('esperando threads finalizar a execução\n')
         self._monitor._end_process.wait()
+        end = time.time() - start
+        print(end)

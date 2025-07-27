@@ -12,10 +12,13 @@ class TableManager:
         if schema:
             table_name = f"{schema}.{table_name}"
         with conn.connect() as conn:
-            try:
-                conn.execute(text(f"TRUNCATE TABLE {table_name}"))
-            except _SQLAlchemyError as e:
-                raise _SQLAlchemyError(f"Falha ao truncar tabela: {e}")
+            with conn.begin() as transaction:
+                try:
+                    print(text(f"TRUNCATE TABLE {table_name}"))
+                    conn.execute(text(f"TRUNCATE TABLE {table_name}"))
+                    transaction.commit()
+                except _SQLAlchemyError as e:
+                    raise _SQLAlchemyError(f"Falha ao truncar tabela: {e}")
     
     def execute_query(self, conn:_Engine, query):
         with conn.connect() as conn:

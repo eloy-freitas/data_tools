@@ -41,12 +41,12 @@ class Monitor:
             # todos os workes devem parar
             if self._producers_online <= 0:
                 self.stop_all_workers()
-        finally:
-            try:
-                self._empty.notify()
-                self._mutex.release()
-            except:
-                pass
+
+        try:
+            self._empty.notify()
+            self._mutex.release()
+        except:
+            pass
             
         return data
     

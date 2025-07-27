@@ -10,8 +10,6 @@ class SQLAlchemyConsumer(_BaseWorker):
         monitor: _Monitor,
         engine: _Engine,
         table_manager: _TableManager,
-        columns: list[str],
-        table_name_target: str,
     ) -> None:
         super().__init__(
             monitor=monitor,
@@ -20,9 +18,9 @@ class SQLAlchemyConsumer(_BaseWorker):
         
         self._engine = engine
         self._table_manager = table_manager
-        self._insert_query_template = self._table_manager.build_insert_query(table_name=table_name_target, columns=columns)
 
     def run(self):
+        self._insert_query_template = self._monitor.get_insert_query()
         conn = self._engine.raw_connection()
         
         cursor = conn.cursor()
@@ -45,3 +43,4 @@ class SQLAlchemyConsumer(_BaseWorker):
     
         cursor.close()
         conn.close()
+        self._monitor._end_process.set()

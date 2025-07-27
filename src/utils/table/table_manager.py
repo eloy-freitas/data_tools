@@ -14,7 +14,6 @@ class TableManager:
         with conn.connect() as conn:
             with conn.begin() as transaction:
                 try:
-                    print(text(f"TRUNCATE TABLE {table_name}"))
                     conn.execute(text(f"TRUNCATE TABLE {table_name}"))
                     transaction.commit()
                 except _SQLAlchemyError as e:

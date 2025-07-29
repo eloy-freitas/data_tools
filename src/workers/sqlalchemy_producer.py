@@ -12,7 +12,7 @@ class SQLAlchemyProducer(_BaseWorker):
         engine: _Engine, 
         query: str, 
         max_rows_buffer: int, 
-        yield_per: int,
+        chunksize: int,
         table_manager: TableManager,
         table_target: str
     ) -> None:
@@ -23,7 +23,7 @@ class SQLAlchemyProducer(_BaseWorker):
         self._engine=engine
         self._query=query
         self._max_rows_buffer=max_rows_buffer
-        self._yield_per=yield_per
+        self._chunksize=chunksize
         self._table_manager = table_manager
         self._table_target = table_target
         
@@ -33,7 +33,7 @@ class SQLAlchemyProducer(_BaseWorker):
             stream_results=True, max_rows_buffer=self._max_rows_buffer
         ) as conn:
             try:
-                cursor = conn.execute(text(self._query)).yield_per(self._yield_per) 
+                cursor = conn.execute(text(self._query)).yield_per(self._chunksize) 
             except _SQLAlchemyError as e:
                 self.stop_all_workers()
                 conn.close()

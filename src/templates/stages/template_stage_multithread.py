@@ -4,6 +4,16 @@ from src.monitors.monitor import Monitor
 from src.workers.sqlalchemy_producer import SQLAlchemyProducer
 from src.workers.sqlalchemy_consumer import SQLAlchemyConsumer
 import time
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%d/%m/%Y %H:%M:%S'
+)
+
+logger = logging.getLogger(__name__)
+
 
 
 class StageMultiThread:
@@ -17,7 +27,7 @@ class StageMultiThread:
         monitor_timeout:int = 5,
         monitor_buffer_size: int = 10,
         max_rows_buffer:int = 100000,
-        yield_per: int = 20000
+        chunksize: int = 20000
     ) -> None:
         self._query = query
         self._table_name_taget = table_name_taget
@@ -27,7 +37,7 @@ class StageMultiThread:
         self._monitor_timeout = monitor_timeout
         self._monitor_buffer_size = monitor_buffer_size
         self._max_rows_buffer = max_rows_buffer
-        self._yield_per = yield_per
+        self._chunksize = chunksize
             
     def init_services(self):
         self._table_manager = TableManager()
@@ -40,7 +50,7 @@ class StageMultiThread:
                 engine=self._conn_input,
                 query=self._query,
                 max_rows_buffer=self._max_rows_buffer,
-                yield_per=self._yield_per,
+                chunksize=self._chunksize,
                 table_manager=self._table_manager,
                 table_target=self._table_name_taget
             )
@@ -57,13 +67,13 @@ class StageMultiThread:
             
     def start(self):
         start = time.time()
-        print('iniciando os serviços\n')
+        logger.info('stating services...\n')
         self.init_services()
-        print('truncando tabela de destino\n')
+        logger.info(f'truncating table {self._table_name_taget}...\n')
         self._table_manager.truncate_table(self._conn_output, self._table_name_taget)
-        print('executando os threads\n')
+        logger.info('starting workers...\n')
         self._monitor.start()
-        print('esperando threads finalizar a execução\n')
+        logger.info('waiting workers...\n')
         self._monitor._end_process.wait()
         end = time.time() - start
-        print(end)
+        logger.info(end)

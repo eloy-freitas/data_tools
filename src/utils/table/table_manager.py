@@ -19,14 +19,6 @@ class TableManager:
                 except _SQLAlchemyError as e:
                     raise _SQLAlchemyError(f"Falha ao truncar tabela: {e}")
     
-    def execute_query(self, conn:_Engine, query):
-        with conn.connect() as conn:
-            with conn.begin() as session:
-                try:
-                    conn.execute(text(query))
-                except _SQLAlchemyError as e:
-                    raise _SQLAlchemyError(f"Falha ao executar query: {e}")
-    
     def get_table_columns(self, conn:_Engine, table_name: str):
         with conn.connect() as con:
             try:

@@ -1,36 +1,30 @@
+import time
+from src.utils.log.log_utils import LogUtils
+from src.utils.table.table_manager import TableManager
 from sqlalchemy.engine import Engine as _Engine
 from src.utils.table.table_manager import TableManager
 from src.monitors.monitor import Monitor
 from src.workers.sqlalchemy_producer import SQLAlchemyProducer
 from src.workers.sqlalchemy_consumer import SQLAlchemyConsumer
-import time
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%d/%m/%Y %H:%M:%S'
-)
-
-logger = logging.getLogger(__name__)
 
 
-
-class StageMultiThread:
+class StageCopyTableMultiThread:
     def __init__(
         self,
-        query: str,
-        table_name_taget: str,
+        table_name_source: str,
+        table_name_target: str,
         conn_input: _Engine,
         conn_output: _Engine,
+        log_utils: LogUtils,
+        table_manager: TableManager,
         consumers: int = 2,
         monitor_timeout:int = 5,
         monitor_buffer_size: int = 10,
         max_rows_buffer:int = 100000,
         chunksize: int = 20000
     ) -> None:
-        self._query = query
-        self._table_name_taget = table_name_taget
+        self._table_name_source = table_name_source
+        self._table_name_target = table_name_target
         self._conn_input = conn_input
         self._conn_output = conn_output
         self._consumers = consumers
@@ -38,21 +32,25 @@ class StageMultiThread:
         self._monitor_buffer_size = monitor_buffer_size
         self._max_rows_buffer = max_rows_buffer
         self._chunksize = chunksize
+        self._log_utils = log_utils
+        self._table_manager = table_manager
+        self._logger = self._log_utils.get_logger(__name__)
             
     def init_services(self):
-        self._table_manager = TableManager()
+        columns = self._table_manager.get_table_columns(conn=self._conn_output, table_name=self._table_name_source)
+        query = self._table_manager.create_select_query(table_name=self._table_name_source, columns=columns)
 
         self._monitor = Monitor(self._monitor_buffer_size, self._monitor_timeout)
-
+        
         self._monitor.subscribe(
             SQLAlchemyProducer(
                 monitor=self._monitor,
                 engine=self._conn_input,
-                query=self._query,
+                query=query,
                 max_rows_buffer=self._max_rows_buffer,
                 chunksize=self._chunksize,
                 table_manager=self._table_manager,
-                table_target=self._table_name_taget
+                table_target=self._table_name_target
             )
         )
 
@@ -65,15 +63,19 @@ class StageMultiThread:
                 )
             )
             
-    def start(self):
+    def run(self):
         start = time.time()
-        logger.info('stating services...\n')
+        self._logger.info(f'table source {self._table_name_source}')
+        self._logger.info(f'table target {self._table_name_target}')
+        self._logger.info(f'connection input {self._conn_input.__repr__()}')
+        self._logger.info(f'connection output {self._conn_output.__repr__()}')
+
+        self._logger.info('stating services...\n')
         self.init_services()
-        logger.info(f'truncating table {self._table_name_taget}...\n')
-        self._table_manager.truncate_table(self._conn_output, self._table_name_taget)
-        logger.info('starting workers...\n')
+        self._logger.info(f'truncating table {self._table_name_target}...\n')
+        self._table_manager.truncate_table(self._conn_output, self._table_name_target)
+        self._logger.info('processing etl...\n')
         self._monitor.start()
-        logger.info('waiting workers...\n')
         self._monitor._end_process.wait()
         end = time.time() - start
-        logger.info(end)
+        self._logger.info(f'execution time {end}')

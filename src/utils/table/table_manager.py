@@ -19,7 +19,10 @@ class TableManager:
                 except _SQLAlchemyError as e:
                     raise _SQLAlchemyError(f"Falha ao truncar tabela: {e}")
     
-    def get_table_columns(self, conn:_Engine, table_name: str):
+    def get_table_columns(self, conn:_Engine, table_name: str, schema:str = None):
+        if schema:
+            table_name = f"{schema}.{table_name}"
+
         with conn.connect() as con:
             try:
                 cursor = con.execute(text(f"SELECT * FROM {table_name} limit 1"))
@@ -32,6 +35,27 @@ class TableManager:
                 
             except _SQLAlchemyError as e:
                 raise _SQLAlchemyError(f"Falha ao executar contagem: {e}")
+    
+    def create_select_query(
+        self, 
+        table_name: str, 
+        columns: list[str], 
+        schema: str = None, 
+        ignore_columns: list[str] = None
+    ) -> str:
+        if schema:
+            table_name = f"{schema}.{table_name}"
+
+        try:
+            if ignore_columns:
+                for c in ignore_columns:
+                    columns.remove(c)
+            columns_str = ','.join(columns)
+        except ValueError as e:
+            raise ValueError(f'Invalid type of columns. Use a list of strings. \n{e}')
+
+        return f"SELECT {columns_str} FROM {table_name}"
+
                     
     def insert(self, data: object, conn: _Connection, cursor: object, insert_query_template: str):
         try:

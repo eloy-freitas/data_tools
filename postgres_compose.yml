@@ -7,9 +7,10 @@ services:
       volumes:
         - datawarehouse-volume:/var/lib/postgresql/data
       ports:
-        - 5432:5432
+        - 10000:5432
       networks:
         - datawarehouse-network
+      restart: on-failure
 volumes:
   datawarehouse-volume:
 

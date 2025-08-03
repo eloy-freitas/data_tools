@@ -8,7 +8,7 @@ from src.workers.sqlalchemy_producer import SQLAlchemyProducer
 from src.workers.sqlalchemy_consumer import SQLAlchemyConsumer
 
 
-class StageCopyTableMultiThread:
+class StageAdHocMultiThread:
     def __init__(
         self,
         query: str,

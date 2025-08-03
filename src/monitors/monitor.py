@@ -14,8 +14,10 @@ class Monitor:
         self._mutex: _Semaphore = _Semaphore(1)
         self._full: _Condition = _Condition(self._mutex)
         self._empty: _Condition = _Condition(self._mutex)
+        self._insert_query_avaliable: _Condition = _Condition(self._mutex)
         self._end_process: _Event = _Event()
         self._timeout: int = timeout
+        self._insert_query = None
 
     def write(self, data: object):
         self._mutex.acquire()
@@ -41,12 +43,12 @@ class Monitor:
             # todos os workes devem parar
             if self._producers_online <= 0:
                 self.stop_all_workers()
-        finally:
-            try:
-                self._empty.notify()
-                self._mutex.release()
-            except:
-                pass
+
+        try:
+            self._empty.notify()
+            self._mutex.release()
+        except:
+            pass
             
         return data
     
@@ -82,3 +84,19 @@ class Monitor:
         # inicia a execução de todos os threads inscritos.
         for worker in self._workers:
             worker.start()
+
+    def set_insert_query(self, query: str):
+        self._mutex.acquire()
+        self._insert_query = query
+        self._insert_query_avaliable.notify_all()
+        self._mutex.release()
+
+    def get_insert_query(self):
+        self._mutex.acquire()
+        if not self._insert_query:
+            self._insert_query_avaliable.wait()
+        
+        query = self._insert_query
+        self._mutex.release()
+
+        return query

@@ -1,11 +1,11 @@
 {
     "dbdw": {
-        "host":"172.18.0.2",
+        "host":"localhost",
         "database": "postgres",
         "user":"postgres",
         "password":"password",
         "schema": "public",
-        "port": 5432
+        "port": 10000
     }
     
 }

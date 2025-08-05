@@ -2,7 +2,6 @@ import logging
 from logging import Logger
 
 
-
 class LogUtils:
     def __init__(self):
         logging.basicConfig(

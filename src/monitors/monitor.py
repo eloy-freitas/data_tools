@@ -21,8 +21,6 @@ class Monitor:
 
     def write(self, data: object):
         self._mutex.acquire()
-        # verifica se o buffer esta cheio
-        # espera ate liberar espaço da memória
         if len(self._buffer) == self._buffer_size:
             self._empty.wait()
         self._buffer.append(data)
@@ -31,16 +29,12 @@ class Monitor:
 
     def read(self):
         data = None
-        # sessão crítica
         self._mutex.acquire()
-        # verifica se o buffer está vazio e se existe algum produtor online
         if len(self._buffer) == 0 and self._producers_online > 0:
             self._full.wait()
         try:
             data = self._buffer.pop()
         except:
-            # se o buffer estiver vazio e nenhum produtor estiver online
-            # todos os workes devem parar
             if self._producers_online <= 0:
                 self.stop_all_workers()
 
@@ -65,23 +59,19 @@ class Monitor:
             worker.stop()
         self.notify_all()
 
-        # libera processo que espera pelo evento
         self._end_process.set()
 
     def done(self):
-        # atualização contador de workers online
         self._mutex.acquire()
         self._producers_online -= 1
         self._mutex.release()
 
     def subscribe(self, worker):
-        # inscrição dos workers
         if worker._is_producer:
             self._producers_online += 1
         self._workers.append(worker)
             
     def start(self):
-        # inicia a execução de todos os threads inscritos.
         for worker in self._workers:
             worker.start()
 

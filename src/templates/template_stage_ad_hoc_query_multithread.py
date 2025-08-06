@@ -23,6 +23,20 @@ class StageAdHocMultiThread:
         max_rows_buffer:int = 100000,
         chunksize: int = 20000
     ) -> None:
+        """
+        Initialize a StageAdHocMultiThread instance for multi-threaded ETL processing.
+        
+        Parameters:
+            query (str): SQL query to extract data from the source database.
+            table_name_target (str): Name of the target table for data loading.
+            consumers (int, optional): Number of consumer threads to use. Defaults to 2.
+            monitor_timeout (int, optional): Timeout in seconds for the monitor's polling interval. Defaults to 5.
+            monitor_buffer_size (int, optional): Number of data chunks the monitor can buffer. Defaults to 10.
+            max_rows_buffer (int, optional): Maximum number of rows to buffer in memory. Defaults to 100000.
+            chunksize (int, optional): Number of rows per data chunk processed by the producer. Defaults to 20000.
+        
+        This constructor sets up the ETL workflow configuration, including database connections, threading parameters, and logging.
+        """
         self._query = query
         self._table_name_target = table_name_target
         self._conn_input = conn_input
@@ -37,6 +51,11 @@ class StageAdHocMultiThread:
         self._logger = self._log_utils.get_logger(__name__)
             
     def init_services(self):
+        """
+        Initializes and configures the monitor, producer, and consumer services for the ETL process.
+        
+        Sets up a monitor with the specified buffer size and timeout, subscribes a single SQLAlchemyProducer for data extraction, and subscribes multiple SQLAlchemyConsumer instances for data loading based on the configured number of consumers.
+        """
         self._monitor = Monitor(self._monitor_buffer_size, self._monitor_timeout)
 
         self._monitor.subscribe(
@@ -61,6 +80,11 @@ class StageAdHocMultiThread:
             )
             
     def run(self):
+        """
+        Executes the multi-threaded ETL process, including logging, service initialization, target table truncation, and monitoring until completion.
+        
+        Measures and logs the total execution time for the ETL workflow.
+        """
         start = time.time()
         self._logger.info(f'query input: \n{self._query}')
         self._logger.info(f'table target: {self._table_name_target}')

@@ -16,6 +16,16 @@ class SQLAlchemyProducer(_BaseWorker):
         table_manager: TableManager,
         table_target: str
     ) -> None:
+        """
+        Initialize a SQLAlchemyProducer to stream query results from a database and send them to a monitor.
+        
+        Parameters:
+            query (str): The SQL query to execute for data extraction.
+            max_rows_buffer (int): Maximum number of rows to buffer during streaming.
+            chunksize (int): Number of rows to fetch per chunk from the database.
+            table_manager (TableManager): Utility for building insert queries for the target table.
+            table_target (str): Name of the target table for data insertion.
+        """
         super().__init__(
             monitor=monitor,
             is_producer=True,
@@ -29,6 +39,11 @@ class SQLAlchemyProducer(_BaseWorker):
         
 
     def run(self):
+        """
+        Executes a SQL query using SQLAlchemy, streams the results in chunks, and writes each chunk to the monitor.
+        
+        Establishes a streaming database connection, executes the provided query, and retrieves results in batches of the specified chunk size. For each batch, writes the data to the monitor and checks for stop signals to halt processing if necessary. Handles SQL execution errors and ensures all workers are stopped on failure. Signals completion to the monitor after all data is processed.
+        """
         with self._engine.connect().execution_options(
             stream_results=True, max_rows_buffer=self._max_rows_buffer
         ) as conn:

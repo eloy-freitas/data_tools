@@ -24,7 +24,7 @@ class PostgresConnectionFactory(ConnectionFactory):
         
         return result
     
-    def create_connection_url(self, connection_dict: dict[str, str]):
+    def create_connection_url(self, connection_dict: dict[str, str]) -> str:
         user = connection_dict['user']
         password = connection_dict['password']
         host = connection_dict['host']

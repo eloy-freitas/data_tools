@@ -1,6 +1,6 @@
 from src.utils.log.log_utils import LogUtils
 from src.utils.table.table_manager import TableManager
-from src.templates.stages.template_stage_copy_table_multithread import StageCopyTableMultiThread
+from src.templates.template_stage_copy_table_multithread import StageCopyTableMultiThread
 from src.connection.postgres_connection_factory import PostgresConnectionFactory
 
 

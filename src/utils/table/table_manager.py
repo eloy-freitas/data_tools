@@ -8,7 +8,7 @@ class TableManager:
     def __init__(self) -> None:
         pass
 
-    def truncate_table(self, conn:_Engine, table_name:str, schema: str = None):
+    def truncate_table(self, conn:_Engine, table_name:str, schema: str = None) -> None:
         if schema:
             table_name = f"{schema}.{table_name}"
         with conn.connect() as conn:
@@ -19,7 +19,7 @@ class TableManager:
                 except _SQLAlchemyError as e:
                     raise _SQLAlchemyError(f"Falha ao truncar tabela: {e}")
     
-    def get_table_columns(self, conn:_Engine, table_name: str, schema:str = None):
+    def get_table_columns(self, conn:_Engine, table_name: str, schema:str = None) -> list[str]:
         if schema:
             table_name = f"{schema}.{table_name}"
 
@@ -57,7 +57,13 @@ class TableManager:
         return f"SELECT {columns_str} FROM {table_name}"
 
                     
-    def insert(self, data: object, conn: _Connection, cursor: object, insert_query_template: str):
+    def insert(
+        self,
+        data: object,
+        conn: _Connection,
+        cursor: object,
+        insert_query_template: str
+    ) -> None:
         try:
             cursor.executemany(insert_query_template, data)
             conn.commit()
@@ -68,7 +74,7 @@ class TableManager:
                 f"MENSAGEM DE ERRO: {e}"
             )
     
-    def build_insert_query(self, table_name: str,columns: list[str]):
+    def build_insert_query(self, table_name: str,columns: list[str]) -> str:
         columns_names_str = ",".join(columns)
         columns_name_parametes = ",".join([f"%s" for _ in columns])
 

@@ -8,9 +8,9 @@ from src.monitors.monitor import Monitor as _Monitor
 
 class BaseWorker(_Thread):
     def __init__(
-        self
-        , monitor: _Monitor 
-        , is_producer: bool = False
+        self,
+        monitor: _Monitor,
+        is_producer: bool = False
     ) -> None:
         super().__init__(
             group=None, 

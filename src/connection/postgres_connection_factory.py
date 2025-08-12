@@ -1,10 +1,9 @@
-from .connection_factory import ConnectionFactory
 import json
 from sqlalchemy import create_engine as _create_engine
 from sqlalchemy.engine import Engine as _Engine
 
 
-class PostgresConnectionFactory(ConnectionFactory):
+class PostgresConnectionFactory():
     def __init__(self) -> None:
         super().__init__()
     
@@ -15,12 +14,12 @@ class PostgresConnectionFactory(ConnectionFactory):
             with open(file_path) as file:
                 data = json.load(file)
         except IOError as e:
-            raise IOError(f"Falha ao ler arquivo:\n{e}")
+            raise IOError(f"Connection file {file_path} not found:\n{e}") from e
 
         result = data[conn_id]
         
         if len(result) == 0:
-            raise KeyError(f"Nome da conexão não existe")
+            raise KeyError(f"Connection id {conn_id} not found")
         
         return result
     
@@ -41,7 +40,3 @@ class PostgresConnectionFactory(ConnectionFactory):
         
         return _create_engine(url)
     
-    def create_engine(self, conn_dict:dict) -> _Engine:
-        url = self.create_connection_url(conn_dict)
-        
-        return _create_engine(url, echo=True)

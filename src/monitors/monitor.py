@@ -14,35 +14,28 @@ class Monitor:
         self._mutex: _Semaphore = _Semaphore(1)
         self._full: _Condition = _Condition(self._mutex)
         self._empty: _Condition = _Condition(self._mutex)
-        self._insert_query_avaliable: _Condition = _Condition(self._mutex)
+        self._insert_query_available: _Condition = _Condition(self._mutex)
         self._end_process: _Event = _Event()
         self._timeout: int = timeout
         self._insert_query = None
 
     def write(self, data: object):
-        self._mutex.acquire()
-        if len(self._buffer) == self._buffer_size:
-            self._empty.wait()
-        self._buffer.append(data)
-        self._full.notify()
-        self._mutex.release()
+        with self._mutex:
+            if len(self._buffer) == self._buffer_size:
+                self._empty.wait()
+            self._buffer.append(data)
+            self._full.notify()
 
     def read(self):
         data = None
-        self._mutex.acquire()
-        if len(self._buffer) == 0 and self._producers_online > 0:
-            self._full.wait()
-        try:
-            data = self._buffer.pop()
-        except:
-            if self._producers_online <= 0:
+        with self._mutex:
+            if len(self._buffer) == 0 and self._producers_online > 0:
+                self._full.wait()
+            if self._buffer:
+                data = self._buffer.pop()
+                self._empty.notify()
+            elif self._producers_online <= 0:
                 self.stop_all_workers()
-
-        try:
-            self._empty.notify()
-            self._mutex.release()
-        except:
-            pass
             
         return data
     
@@ -62,12 +55,11 @@ class Monitor:
         self._end_process.set()
 
     def done(self):
-        self._mutex.acquire()
-        self._producers_online -= 1
-        self._mutex.release()
+        with self._mutex:
+            self._producers_online -= 1
 
     def subscribe(self, worker):
-        if worker._is_producer:
+        if worker.is_producer:
             self._producers_online += 1
         self._workers.append(worker)
             
@@ -76,17 +68,14 @@ class Monitor:
             worker.start()
 
     def set_insert_query(self, query: str):
-        self._mutex.acquire()
-        self._insert_query = query
-        self._insert_query_avaliable.notify_all()
-        self._mutex.release()
+        with self._mutex:
+            self._insert_query = query
+            self._insert_query_available.notify_all()
 
     def get_insert_query(self):
-        self._mutex.acquire()
-        if not self._insert_query:
-            self._insert_query_avaliable.wait()
-        
-        query = self._insert_query
-        self._mutex.release()
+        with self._mutex:
+            if not self._insert_query:
+                self._insert_query_available.wait()
+            query = self._insert_query
 
         return query

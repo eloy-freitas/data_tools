@@ -32,3 +32,8 @@ class BaseWorker(_Thread):
 
     def stop_all_workers(self):
         self._monitor.stop_all_workers()
+    
+    @property 
+    def is_producer(self): 
+        return self._is_producer
+        

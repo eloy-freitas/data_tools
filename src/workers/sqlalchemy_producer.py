@@ -38,8 +38,7 @@ class SQLAlchemyProducer(_BaseWorker):
                 self.stop_all_workers()
                 conn.close()
                 raise _SQLAlchemyError(
-                    "ERRO: Falha ao extrair dados \n"
-                    f"MENSAGEM DE ERRO: {e}"
+                    f"Fail to insert data \n {e}"
                 )
             columns = cursor.keys()
 
@@ -53,11 +52,11 @@ class SQLAlchemyProducer(_BaseWorker):
             while result := cursor.fetchmany():
                 try:
                     if self._stop.is_set():
-                        raise RuntimeError("Hover um erro. Parando todos os threads.")
+                        raise RuntimeError("Stopping data production due to error in another worker.")
                     else:
                         self._monitor.write(result)
                 except Exception as e:
                     self.stop_all_workers()
-                    raise Exception(e)
+                    raise Exception("Failed during data fetching")
         
-        self._monitor.done()
+        self._monitor.producer_end_process()

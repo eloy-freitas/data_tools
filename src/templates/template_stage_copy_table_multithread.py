@@ -70,7 +70,7 @@ class StageCopyTableMultiThread:
             self._logger.info(f'connection input: {self._conn_input.__repr__()}')
             self._logger.info(f'connection output: {self._conn_output.__repr__()}')
 
-            self._logger.info('stating services...\n')
+            self._logger.info('starting services...\n')
             self.init_services()
             self._logger.info(f'truncating table: {self._table_name_target}...\n')
             self._table_manager.truncate_table(self._conn_output, self._table_name_target)

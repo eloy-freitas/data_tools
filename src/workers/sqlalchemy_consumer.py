@@ -24,23 +24,23 @@ class SQLAlchemyConsumer(_BaseWorker):
         conn = self._engine.raw_connection()
         
         cursor = conn.cursor()
-
-        while not self._stop.is_set():
-            data = self._monitor.read()
-            if data:
-                try:
-                    self._table_manager.insert(
-                        data=data,
-                        insert_query_template=self._insert_query_template,
-                        conn=conn,
-                        cursor=cursor
-                    )
-                except Exception as e:
-                    self.stop_all_workers()
-                    cursor.close()
-                    conn.close()
-                    raise Exception(e)
-    
-        cursor.close()
-        conn.close()
-        self._monitor._end_process.set()
+        try:
+            while not self._stop.is_set():
+                data = self._monitor.read()
+                if data:
+                    try:
+                        self._table_manager.insert(
+                            data=data,
+                            insert_query_template=self._insert_query_template,
+                            conn=conn,
+                            cursor=cursor
+                        )
+                    except Exception as e:
+                        self.stop_all_workers()
+                        cursor.close()
+                        conn.close()
+                        raise Exception(e)
+        finally:
+            cursor.close()
+            conn.close()
+            self._monitor.signal_end_process()

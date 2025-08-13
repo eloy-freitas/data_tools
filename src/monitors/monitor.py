@@ -54,7 +54,7 @@ class Monitor:
 
         self._end_process.set()
 
-    def done(self):
+    def producer_end_process(self):
         with self._mutex:
             self._producers_online -= 1
 
@@ -82,3 +82,7 @@ class Monitor:
 
     def wait_for_completion(self):
         self._end_process.wait()
+    
+    def signal_end_process(self): 
+        self._end_process.set()
+        

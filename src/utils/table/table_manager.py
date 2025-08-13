@@ -12,12 +12,11 @@ class TableManager:
         if schema:
             table_name = f"{schema}.{table_name}"
         with conn.connect() as conn:
-            with conn.begin() as transaction:
+            with conn.begin():
                 try:
                     conn.execute(text(f"TRUNCATE TABLE {table_name}"))
-                    transaction.commit()
                 except _SQLAlchemyError as e:
-                    raise _SQLAlchemyError(f"Falha ao truncar tabela: {e}")
+                    raise _SQLAlchemyError(f"Fail to truncate table: {e}")
     
     def get_table_columns(self, conn:_Engine, table_name: str, schema:str = None) -> list[str]:
         if schema:
@@ -34,7 +33,7 @@ class TableManager:
                 return columns
                 
             except _SQLAlchemyError as e:
-                raise _SQLAlchemyError(f"Falha ao executar contagem: {e}")
+                raise _SQLAlchemyError(f"Fail to get columns from table {table_name}: {e}")
     
     def create_select_query(
         self, 
@@ -70,8 +69,7 @@ class TableManager:
         except _SQLAlchemyError as e:
             conn.rollback()
             raise _SQLAlchemyError(
-                f"Falha ao inserir dados \n"
-                f"MENSAGEM DE ERRO: {e}"
+                f"Fail to insert data \n {e}"
             )
     
     def build_insert_query(self, table_name: str,columns: list[str]) -> str:

@@ -2,7 +2,6 @@ import time
 from src.utils.log.log_utils import LogUtils
 from src.utils.table.table_manager import TableManager
 from sqlalchemy.engine import Engine as _Engine
-from src.utils.table.table_manager import TableManager
 from src.monitors.monitor import Monitor
 from src.workers.sqlalchemy_producer import SQLAlchemyProducer
 from src.workers.sqlalchemy_consumer import SQLAlchemyConsumer
@@ -83,23 +82,22 @@ class StageCopyTableMultiThread:
             )
             
     def run(self):
-        """
-        Executes the multithreaded ETL process to copy data from the source table to the target table.
-        
-        This method initializes producer-consumer services, truncates the target table, starts the data transfer process, and waits for completion. Logs key steps and the total execution time.
-        """
-        start = time.time()
-        self._logger.info(f'table source: {self._table_name_source}')
-        self._logger.info(f'table target: {self._table_name_target}')
-        self._logger.info(f'connection input: {self._conn_input.__repr__()}')
-        self._logger.info(f'connection output: {self._conn_output.__repr__()}')
+        try:
+            start = time.time()
+            self._logger.info(f'table source: {self._table_name_source}')
+            self._logger.info(f'table target: {self._table_name_target}')
+            self._logger.info(f'connection input: {self._conn_input.__repr__()}')
+            self._logger.info(f'connection output: {self._conn_output.__repr__()}')
 
-        self._logger.info('stating services...\n')
-        self.init_services()
-        self._logger.info(f'truncating table: {self._table_name_target}...\n')
-        self._table_manager.truncate_table(self._conn_output, self._table_name_target)
-        self._logger.info('processing etl...\n')
-        self._monitor.start()
-        self._monitor._end_process.wait()
-        end = time.time() - start
-        self._logger.info(f'execution time: {end}')
+            self._logger.info('starting services...\n')
+            self.init_services()
+            self._logger.info(f'truncating table: {self._table_name_target}...\n')
+            self._table_manager.truncate_table(self._conn_output, self._table_name_target)
+            self._logger.info('processing etl...\n')
+            self._monitor.start()
+            self._monitor.wait_for_completion()
+            end = time.time() - start
+            self._logger.info(f'execution time: {end}')
+        except Exception as e: 
+            self._logger.error(f'ETL process failed: {e}') 
+            raise

@@ -46,7 +46,9 @@ This method must be implemented by subclasses to specify the thread's behavior.
         self._stop.set()
 
     def stop_all_workers(self):
-        """
-        Instruct the associated monitor to stop all worker threads it manages.
-        """
         self._monitor.stop_all_workers()
+    
+    @property 
+    def is_producer(self): 
+        return self._is_producer
+        

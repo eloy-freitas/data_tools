@@ -86,17 +86,21 @@ class StageAdHocMultiThread:
         Measures and logs the total execution time for the ETL workflow.
         """
         start = time.time()
-        self._logger.info(f'query input: \n{self._query}')
-        self._logger.info(f'table target: {self._table_name_target}')
-        self._logger.info(f'connection input: {self._conn_input.__repr__()}')
-        self._logger.info(f'connection output: {self._conn_output.__repr__()}')
+        try:
+            self._logger.info(f'query input: \n{self._query}')
+            self._logger.info(f'table target: {self._table_name_target}')
+            self._logger.info(f'connection input: {self._conn_input.__repr__()}')
+            self._logger.info(f'connection output: {self._conn_output.__repr__()}')
 
-        self._logger.info('stating services...\n')
-        self.init_services()
-        self._logger.info(f'truncating table: {self._table_name_target}...\n')
-        self._table_manager.truncate_table(self._conn_output, self._table_name_target)
-        self._logger.info('processing etl...\n')
-        self._monitor.start()
-        self._monitor._end_process.wait()
-        end = time.time() - start
-        self._logger.info(f'execution time: {end}')
+            self._logger.info('starting services...\n')
+            self.init_services()
+            self._logger.info(f'truncating table: {self._table_name_target}...\n')
+            self._table_manager.truncate_table(self._conn_output, self._table_name_target)
+            self._logger.info('processing etl...\n')
+            self._monitor.start()
+            self._monitor.wait_for_completion()
+            end = time.time() - start
+            self._logger.info(f'execution time: {end}')
+        except Exception as e: 
+            self._logger.error(f'ETL process failed: {e}') 
+            raise

@@ -79,3 +79,6 @@ class Monitor:
             query = self._insert_query
 
         return query
+
+    def wait_for_completion(self):
+        self._end_process.wait()

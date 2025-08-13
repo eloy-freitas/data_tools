@@ -1,0 +1,19 @@
+services:
+  datawarehouse:
+      image: postgres:15
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=password
+      volumes:
+        - datawarehouse-volume:/var/lib/postgresql/data
+      ports:
+        - 10000:5432
+      networks:
+        - datawarehouse-network
+      restart: on-failure
+volumes:
+  datawarehouse-volume:
+
+networks:
+  datawarehouse-network:
+    driver: bridge

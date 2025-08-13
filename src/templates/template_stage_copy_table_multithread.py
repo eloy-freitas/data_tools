@@ -22,6 +22,20 @@ class StageCopyTableMultiThread:
         max_rows_buffer:int = 100000,
         chunksize: int = 20000
     ) -> None:
+        """
+        Initialize a StageCopyTableMultiThread instance for multithreaded table copying.
+        
+        Parameters:
+            table_name_source (str): Name of the source table to copy data from.
+            table_name_target (str): Name of the target table to copy data into.
+            consumers (int, optional): Number of consumer threads to use for writing data. Defaults to 2.
+            monitor_timeout (int, optional): Timeout in seconds for the monitor's buffer operations. Defaults to 5.
+            monitor_buffer_size (int, optional): Maximum number of data chunks held in the monitor's buffer. Defaults to 10.
+            max_rows_buffer (int, optional): Maximum number of rows buffered before writing. Defaults to 100000.
+            chunksize (int, optional): Number of rows to fetch per chunk from the source table. Defaults to 20000.
+        
+        Sets up internal state for managing the producer-consumer workflow and logging.
+        """
         self._table_name_source = table_name_source
         self._table_name_target = table_name_target
         self._conn_input = conn_input
@@ -36,6 +50,11 @@ class StageCopyTableMultiThread:
         self._logger = self._log_utils.get_logger(__name__)
             
     def init_services(self):
+        """
+        Initializes the producer-consumer services and monitor for multithreaded table copying.
+        
+        Retrieves the source table columns and constructs a select query. Sets up a monitor with the configured buffer size and timeout, subscribes a producer to read data from the source table, and subscribes multiple consumers to write data to the target table.
+        """
         columns = self._table_manager.get_table_columns(conn=self._conn_output, table_name=self._table_name_source)
         query = self._table_manager.create_select_query(table_name=self._table_name_source, columns=columns)
 

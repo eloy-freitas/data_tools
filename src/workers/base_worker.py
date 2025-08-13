@@ -12,6 +12,13 @@ class BaseWorker(_Thread):
         monitor: _Monitor,
         is_producer: bool = False
     ) -> None:
+        """
+        Initialize a BaseWorker thread with a monitor and an optional producer flag.
+        
+        Parameters:
+            monitor (_Monitor): The monitor instance used to coordinate or manage worker threads.
+            is_producer (bool, optional): Indicates if this worker acts as a producer. Defaults to False.
+        """
         super().__init__(
             group=None, 
             target=None, 
@@ -25,9 +32,17 @@ class BaseWorker(_Thread):
         self._is_producer: bool = is_producer
     
     @_abstractmethod
-    def run(self): ...
+    def run(self): """
+Defines the main execution logic for the worker thread.
+
+This method must be implemented by subclasses to specify the thread's behavior.
+"""
+...
 
     def stop(self):
+        """
+        Signal the worker thread to stop by setting the internal stop event.
+        """
         self._stop.set()
 
     def stop_all_workers(self):

@@ -7,6 +7,13 @@ from threading import (
 
 class Monitor:
     def __init__(self, buffer_size: int, timeout: int = 5):
+        """
+        Initialize a Monitor instance for coordinating producer and consumer threads with a bounded buffer.
+        
+        Parameters:
+            buffer_size (int): Maximum number of items the buffer can hold.
+            timeout (int, optional): Timeout in seconds for thread synchronization operations. Defaults to 5.
+        """
         self._buffer: list[tuple] = []
         self._buffer_size: int = buffer_size
         self._workers: list = []
@@ -27,6 +34,12 @@ class Monitor:
             self._full.notify()
 
     def read(self):
+        """
+        Retrieve and remove an item from the buffer, blocking if the buffer is empty and producers are still active.
+        
+        Returns:
+            The next item from the buffer, or None if the buffer is empty and no producers remain.
+        """
         data = None
         with self._mutex:
             if len(self._buffer) == 0 and self._producers_online > 0:
@@ -40,6 +53,11 @@ class Monitor:
         return data
     
     def notify_all(self):
+        """
+        Notify all threads waiting on buffer state changes and release the mutex.
+        
+        This method releases the internal mutex and wakes all threads waiting on both the full and empty condition variables. Exceptions during this process are silently ignored.
+        """
         try:
             self._mutex.release()
             self._full.notify_all()
@@ -48,6 +66,9 @@ class Monitor:
             pass
 
     def stop_all_workers(self):        
+        """
+        Stops all subscribed workers, notifies waiting threads, and signals the end of processing.
+        """
         for worker in self._workers:
             worker.stop()
         self.notify_all()
@@ -64,6 +85,9 @@ class Monitor:
         self._workers.append(worker)
             
     def start(self):
+        """
+        Start all subscribed worker threads managed by the monitor.
+        """
         for worker in self._workers:
             worker.start()
 

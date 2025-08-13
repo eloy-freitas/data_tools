@@ -269,7 +269,7 @@ classDiagram
 ```
 pip install -r requirements.txt --no-cache-dir
 ```
-3. Run docker compose do postgres:
+3. Run database docker compose:
 ```
 docker compose -f postgres_compose.yml up -d
 ```

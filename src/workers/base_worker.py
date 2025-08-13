@@ -32,12 +32,13 @@ class BaseWorker(_Thread):
         self._is_producer: bool = is_producer
     
     @_abstractmethod
-    def run(self): """
-Defines the main execution logic for the worker thread.
+    def run(self): 
+        """
+        Defines the main execution logic for the worker thread.
 
-This method must be implemented by subclasses to specify the thread's behavior.
-"""
-...
+        This method must be implemented by subclasses to specify the thread's behavior.
+        """
+        ...
 
     def stop(self):
         """

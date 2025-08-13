@@ -5,6 +5,11 @@ from src.connection.postgres_connection_factory import PostgresConnectionFactory
 
 
 def main():
+    """
+    Executes a multi-threaded copy of data from one PostgreSQL table to another.
+    
+    The function sets up database connections, logging, and table management utilities, then initiates a multi-threaded copy operation from the source table to the target table using specified chunk size and concurrency parameters.
+    """
     table_name_source = "tabela_2"
 
     table_name_target = 'tabela_2_target'

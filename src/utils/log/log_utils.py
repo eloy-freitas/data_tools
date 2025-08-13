@@ -12,4 +12,13 @@ class LogUtils:
         pass
 
     def get_logger(self, name) -> Logger:
+        """
+        Return a logger instance associated with the specified name.
+        
+        Parameters:
+            name (str): The name of the logger to retrieve.
+        
+        Returns:
+            Logger: A logger configured with the global logging settings.
+        """
         return logging.getLogger(name)
